@@ -1,0 +1,46 @@
+# bangaio-nx (Bangai-O HD: Missile Fury, XBLA, title 58410AF2, XDK 2.0.20209) - ReXGlue codegen configuration.
+# Started from banjo-nx's renut_config.toml (2026-10-28, HEAD be8476a3). Banjo's per-function lists (share_registers,
+# the non_argument_as_local_keep list, the v64-v77 / v92 keep, setjmp at 0x82BB5EF0) are N&B's addresses and were
+# dropped: each is re-derived for Bangai-O from its own generated code (docs/bangaio-notes.md, "Code generation").
+
+includes = [
+"config/renut_funcs.toml",
+"config/renut_hooks.toml",
+"config/renut_switch_tables.toml",
+]
+
+# The register-diet set the XDK-2.0.2xxxx ports run (zumasrevenge-nx's perf_overrides.toml, nights-nx's config;
+# banjo-nx's options with the same names, see banjo-nx's renut_config.toml for the reasons and measurements of each):
+# CR / CTR / XER / reservation as C++ locals, no MSR fences, D-form displacement split, inline float conversions, the
+# float-mode diet.
+cr_as_local = true
+ctr_as_local = true
+xer_as_local = true
+reserved_as_local = true
+skip_msr = true
+dform_disp_split = true
+fctiwz_inline = true
+fcti_inline = true
+dcbt_prefetch = true
+rotate_word_shifts = true
+fp_compares_modeless = true
+fp_mode_lookahead = true
+fp_mode_lookahead_past_branch = true
+fp_copy_pairs = true
+fp_copy_forwarding = true
+div_inline = true
+fp_moves_modeless = true
+# r14-r31 / f14-f31 / v14-v31 / v64-v127 as C++ locals. The keep list is the registers Bangai-O uses outside the ABI
+# (found by tools/read_before_write.py on the generated code; see docs/bangaio-notes.md).
+non_volatile_as_local = true
+# v64-v72: VMX128 registers set up by one function and read, never written, by others (tools/read_before_write.py,
+# 2026-10-29): v69 / v72 by the XDK library functions sub_823AEDD0, sub_823AF408, sub_823DA3B0, sub_82462B20,
+# sub_82462EC8, sub_82463188, sub_824633F0; v64 / v65 by sub_824644F8. The same range zumasrevenge-nx and nights-nx
+# keep for their XDKs.
+non_volatile_as_local_keep = ["v64-v72"]
+
+project_name = "renut"
+file_path = "assets/default.xex"
+out_directory_path = "generated"
+
+[functions]

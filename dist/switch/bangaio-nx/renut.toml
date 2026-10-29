@@ -1,0 +1,11 @@
+# Bangai-O HD: Missile Fury for the Switch (bangaio-nx 1.0.0): your settings. Everything else is built in.
+
+# Docked resolution: 900 (drawn at 1600x900, shown at 1920x1080) or 1080 (1920x1080, more GPU work).
+# Handheld is always 1280x720.
+docked_resolution = 900
+
+# SMAA anti-aliasing: smoother edges on the playfield (the HUD and its text stay as they are). true or false.
+smaa = true
+
+# Language: "english", "japanese" or "french".
+language = "english"

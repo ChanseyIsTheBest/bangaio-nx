@@ -1,0 +1,1 @@
+# bangaio-nx: hot cross-file leaf calls (tools/inline_leaves.py --hot): caller callee. Empty until a Bangai-O profile.

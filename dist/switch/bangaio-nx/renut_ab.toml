@@ -1,0 +1,48 @@
+# bangaio-nx: the in-run A/B (banjo-nx's method, docs/porting-guide-renderer.md section 5): 30 s halves, each target
+# switched off for one half and on for the other, in turn; the 10 s report has a "[renut A/B]" line per target with
+# both halves' frame rate, render thread and GPU time. Stand at one static spot (a stage paused, or the title screen)
+# with stock clocks, for 10 minutes or more (a round is 10 targets x 60 s).
+#
+# Target 1 (banjo_renut_precise_barriers) is Vulkan-only: it does nothing on the Switch, so it is the CONTROL. Its line
+# shows the noise of one pair; any target within it is no measurable effect.
+# The others are the items Bangai-O's draw path uses (every draw is immediate: no recorded command buffers, so the
+# record-time items 42-57 do not run): 3 shared constants dedupe, 5 capture pool, 7 bool specialisation,
+# 8 blend skip, 20 chain reuse, 31 draws without textures skip the refill, 62 queued whole-snapshot draws on the fast
+# path, 67 repeated whole clears not sent, 69 point-sprite draws pushed and on the fast path (bangaio-nx's; Bangai-O's
+# missiles and particles are point sprites: 41 % of the draws at a heavy moment). (59, a point-sprite draw's ring
+# upload leaving the fast path a state, does nothing while 69 is on: point draws are pushed then.)
+# For 69 stand where missiles fly (a stage with enemies firing), not on a still screen.
+# v4 (the first console run's missile storm, 22-25 fps at ~4,250 draws a frame): 70 deltas copied at their size into
+# captures the pool keeps up to 8,192 (2,048 before), 71 a range's stream cache entry made at its second sighting,
+# 72 Bangai-O's sprites (non-indexed quad lists) drawn with one index buffer made once. These three only show where
+# many missiles fly: a Fury attack or a busy stage, not a still screen.
+# v5: 73 a delta's changed device chunks found with NEON masks a run at a time (the game thread's CaptureDelta); 71
+# also drops the cache entries of sprite ranges the game rewrites at every kick or uses once.
+# v6: 74 a queued draw prefetches the lines its delta compares; 71 also ages every range entry out 8 frames after it
+# was made unless it is becoming a copy.
+
+license_mask = 1
+banjo_renderer = "renut"
+renut_gpu_backend = "deko3d"
+headless = true
+
+log_level = "info"
+log_file_writer = true
+switch_profile_stacks = false
+renut_gpu_profile = 10.0
+banjo_show_fps = false
+banjo_show_profiler = false
+banjo_cpu_profiler = false
+
+banjo_cpu_enhancements = true
+banjo_noncpu_enhancements = true
+# v7: no spin before a contended guest critical section's host wait (the SDK's default). v5 / v6 spun 64 tries: the v6
+# console profile had a third of RtlEnterCriticalSection's samples on its yield and the same ~70 waits a frame.
+kernel_critsec_spin = 0
+
+banjo_renut_ab_targets = "1,3,5,7,8,20,31,62,67,69,70,71,72,73"
+banjo_renut_ab_s = 30
+
+input_xbox_layout = true
+input_joycon_sideways = true
+switch_software_keyboard = true

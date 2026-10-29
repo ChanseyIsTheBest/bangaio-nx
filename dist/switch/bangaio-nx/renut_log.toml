@@ -1,0 +1,33 @@
+# bangaio-nx: a console TEST toml (not in the 1.0.0 package, whose renut.toml holds only the player's three settings).
+# Copy it over sdmc:/switch/bangaio-nx/renut.toml for a run whose log and console profiler can be read afterwards
+# (logs/ beside the NRO). Every key not set here takes the build's default; from 1.0.0 those are the release's (SMAA
+# on, docked 900 lines shown at 1080, no logging), so this file turns the log and the profiler back on.
+
+# The full game, not the trial (XBLA licence).
+license_mask = 1
+# Renut's renderer on deko3d (the only Switch back end: no Vulkan driver is linked).
+banjo_renderer = "renut"
+renut_gpu_backend = "deko3d"
+# A message box (the save-data prompt) takes its focused button, as on the console with no other choice made.
+headless = true
+
+# Logs (sdmc:/switch/bangaio-nx/logs) and the console profiler (logs/rex/rex_profile.log, every 10 s).
+log_level = "info"
+log_file_writer = true
+switch_profile_stacks = true
+renut_gpu_profile = 10.0
+banjo_show_fps = false
+banjo_show_profiler = false
+banjo_cpu_profiler = false
+
+# The enhancement groups (docs/enhancements-reference.md): CPU and non-CPU on.
+banjo_cpu_enhancements = true
+banjo_noncpu_enhancements = true
+# v7: no spin before a contended guest critical section's host wait (the SDK's default). v5 / v6 spun 64 tries: the v6
+# console profile had a third of RtlEnterCriticalSection's samples on its yield and the same ~70 waits a frame.
+kernel_critsec_spin = 0
+
+# Controls (sa2-nx's driver): Xbox layout by position; a single Joy-Con held sideways works.
+input_xbox_layout = true
+input_joycon_sideways = true
+switch_software_keyboard = true

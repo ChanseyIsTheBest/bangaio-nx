@@ -1,0 +1,37 @@
+# bangaio-nx: the emulator runs' base toml (tools/emu_run.sh adds a run's keys). The shipped settings with the log,
+# a capture every 15 s and the verify keys on (they prove exactness; the emulator does not judge speed).
+
+license_mask = 1
+banjo_renderer = "renut"
+renut_gpu_backend = "deko3d"
+headless = true
+
+log_level = "info"
+log_file_writer = true
+switch_profile_stacks = true
+renut_gpu_profile = 10.0
+banjo_show_fps = false
+banjo_show_profiler = false
+banjo_cpu_profiler = false
+
+banjo_cpu_enhancements = true
+banjo_noncpu_enhancements = true
+# v7: no spin before a contended guest critical section's host wait (the SDK's default). v5 / v6 spun 64 tries: the v6
+# console profile had a third of RtlEnterCriticalSection's samples on its yield and the same ~70 waits a frame.
+kernel_critsec_spin = 0
+
+nfsmw_captura_cada_s = 15
+nfsmw_captura_max = 100
+
+# Verify keys (each compares a fast path with the reference path and logs any difference).
+banjo_renut_fast_draw_verify = true
+banjo_renut_tags_check = true
+banjo_renut_snapshot_deltas_verify = true
+banjo_renut_chain_reuse_verify = true
+banjo_renut_whole_buffers_verify = true
+banjo_renut_store_cards_verify = true
+banjo_renut_persistent_shared_verify = true
+banjo_deko3d_push_constants_verify = true
+banjo_deko3d_txq_verify = true
+
+input_xbox_layout = true

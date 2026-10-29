@@ -1,0 +1,7 @@
+# bangaio-nx: guest functions replaced by localized native copies (tools/localize_native.py). Empty until a Bangai-O profile.
+# bangaio-nx (2026-10-29): the C runtime's memcpy and memset, with their hand-written natives (hand.txt).
+824228D0 memcpy
+82422830 memset
+82424250 memmove
+8216E370 Direct3D vertex shader float-constant writer
+8216E448 Direct3D pixel shader float-constant writer

@@ -1,0 +1,27 @@
+# bangaio-nx: the shipped settings with every diagnostic off (no log, no profiler stacks, no GPU timing). Copy over
+# sdmc:/switch/bangaio-nx/renut.toml to play. Pixel-identical, as renut.toml.
+
+license_mask = 1
+banjo_renderer = "renut"
+renut_gpu_backend = "deko3d"
+headless = true
+
+# Diagnostics off.
+log_level = "off"
+log_file_writer = false
+switch_profile_stacks = false
+renut_gpu_profile = 0.0
+banjo_show_fps = false
+banjo_show_profiler = false
+banjo_cpu_profiler = false
+banjo_stall_watch_seconds = 0
+
+banjo_cpu_enhancements = true
+banjo_noncpu_enhancements = true
+# v7: no spin before a contended guest critical section's host wait (the SDK's default). v5 / v6 spun 64 tries: the v6
+# console profile had a third of RtlEnterCriticalSection's samples on its yield and the same ~70 waits a frame.
+kernel_critsec_spin = 0
+
+input_xbox_layout = true
+input_joycon_sideways = true
+switch_software_keyboard = true

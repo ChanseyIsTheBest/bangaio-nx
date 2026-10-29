@@ -1,0 +1,12 @@
+# bangaio-nx: jump tables whose bound is not in the code, given by hand (evidence in docs/bangaio-notes.md,
+# "Code generation"). A file of its own so that tools appending [functions] lines never land inside a table.
+
+# sub_822A89A0: `lwz r11,272(r3); addi r11,r11,-1; lbzx r0,r12,r11` on the byte table 0x82074B70, base 0x822A89E8,
+# bctr at 0x822A89E4, no bound check. The first 16 bytes give targets in this function (or 0x822A8AF0, the next
+# function: a tail call); bytes 16.. are the next table's (their targets, read from this base, run into
+# sub_822A8AF0's body: the first build failed on undeclared labels loc_822A8EC0 .. loc_822A90B8).
+[[switch_tables]]
+address = 0x822A89E4
+register = 11
+labels = [0x822A8A18, 0x822A8A18, 0x822A8A18, 0x822A8A18, 0x822A8AF0, 0x822A8A18, 0x822A8A18, 0x822A8A18,
+          0x822A8A18, 0x822A89E8, 0x822A8A18, 0x822A8A18, 0x822A89E8, 0x822A89E8, 0x822A89E8, 0x822A89E8]
