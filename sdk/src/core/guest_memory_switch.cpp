@@ -25,6 +25,9 @@ constexpr size_t kPageSize  = 0x1000;
  */
 constexpr size_t kBlockSize = 0x200000;
 
+/* bangaio-nx (2026-11-05, kameo-nx's 1.0.1): banjo_window_blocks, see RexGmInit. */
+bool g_window_blocks = true;
+
 constexpr size_t AlignDown(size_t v, size_t a) { return v & ~(a - 1); }
 constexpr size_t AlignUp(size_t v, size_t a) { return (v + a - 1) & ~(a - 1); }
 
@@ -373,8 +376,19 @@ uint8_t* RexGmInit(size_t size) {
     std::lock_guard<std::mutex> lock(s.mutex);
     if (s.base) return s.base;
 
+    /*
+     * bangaio-nx (2026-11-05, kameo-nx's 1.0.1, found by the Torchlight port): the second argument of virtmemFindAslr
+     * is a guard, not an alignment. So the window was never on a 2 MB boundary, its 2 MB chunks never lined up with
+     * their physical addresses, and the kernel used 4 KB pages for all of the game's memory. 2 MB more is asked for and
+     * the base rounded up. The view at 0xE0000000 maps 0x1000 further on (xmemory.cpp), so it can never line up and
+     * stays on 4 KB pages.
+     */
     virtmemLock();
-    s.base = static_cast<uint8_t*>(virtmemFindAslr(size, kBlockSize));
+    {
+        const size_t extra = g_window_blocks ? kBlockSize : 0;
+        const uintptr_t found = reinterpret_cast<uintptr_t>(virtmemFindAslr(size + extra, kBlockSize));
+        if (found) s.base = reinterpret_cast<uint8_t*>(g_window_blocks ? AlignUp(found, kBlockSize) : found);
+    }
     if (s.base) s.reservation = virtmemAddReservation(s.base, size);
     virtmemUnlock();
 
@@ -821,5 +835,8 @@ void* RexGmShadowFor(uint64_t window_address) {
 }
 
 }  // extern "C"
+
+/* bangaio-nx (2026-11-05): at the end of the file, so that the other functions keep their PGO profile. */
+extern "C" void RexGmSetWindowBlocks(bool on) { g_window_blocks = on; }
 
 #endif /* __SWITCH__ */

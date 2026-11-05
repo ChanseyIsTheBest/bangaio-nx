@@ -54,6 +54,7 @@ package), and it reads the shaders the installer makes. Notes: `docs/`.
   reNut launcher), ValcomDrifty, OlieGamerTV.
 - banjo-nx (this port's base), nights-nx (the hook pairing tools, the installer), sa2-nx (input, CPU work),
   peggle2-nx, bejeweled3-nx and the Zuma ports (frame pacing, the hot-function method, the Direct3D tools).
+- kameo-nx and the Torchlight port (game memory and the NRO's code on 2 MB blocks).
 - battd_nx (the GPU arena).
 - SMAA by Jorge Jimenez et al. (MIT).
 

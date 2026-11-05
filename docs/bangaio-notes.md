@@ -995,6 +995,65 @@ banjo-nx's port of NetherSX2_nx's four-core mode (2026-10-27) is out of the game
   package and the 137-variant cache read, uam 0 compiles all run, delta verify 0 of 317,573, pushed constants 0,
   store cards 0, native copies 0 differences, SMAA up to 108 frames a line, a missile storm on screen.
 - `out/package_1.0.0` (the personal package with the embedded shaders) is the earlier build and still has the mode.
+- **Republished as 1.0.0**: the public repo's single commit replaced (`4beca602`, made as before from this tree
+  without `mullhwucrash.cpp` and `app.aps`; force-pushed over `da4a2991`, 23,269 files); release v1.0.0 deleted and
+  made again on it with the new NRO (GitHub's digest `3bf298ef...`); the installer at `c58e8fe`. The live page serves
+  the new NRO at the manifest's SHA-256, `release/main.npdm` is gone (404) and the page no longer mentions four cores.
+
+## Disk cleanup (2026-10-30, the user's request: "running low on space")
+
+D: had 2.7 GB free. 13.16 GB of old outputs went to the Recycle Bin (not deleted: the user empties it), none of it in
+use (another port's build was running on D: at the time, in its own folder):
+- `app/assets` except `default.xex`: `Bundle/`, `Debug/`, `loctext/`, `xuifontcache*`, `$SystemUpdate/`, `tile.bmp`
+  (6.25 GB) were Banjo-Kazooie: Nuts & Bolts' files, copied with the base. Bangai-O's build reads only `default.xex`
+  there; its shader dump is `out/renut_shader_dump` (`app/cmake/banjo_renut_gpu.cmake`), and gpu.cmake's dump of the
+  bundles never runs (the override).
+- The build trees `app/out/switch` (the plain build: the tools that read its `renut.map` / `build.ninja` need it
+  configured and built again) and `app/out/switch-pgo-gen` (the instrumented build, 13 minutes from scratch). Kept:
+  `switch-pgo-use` (the release tree), `pc-nx` (the shader cache's source), `renut_switch`, `renut_switch_dist`.
+- `out/package_20261029_v1`-`v8` (superseded by 1.0.0), `out/nx_elf` except `bangaio_1.0.0.*`, `out/pc_runs/` and
+  `out/emu/` except `emu1` / `emu2` (the run-time logs the variant list was checked against) and `installer1` / `2`.
+  The run folders named in these notes are gone with them; their results are the ones written here.
+
+## 2 MB blocks: game memory and the NRO's code (version 1.0.1, 2026-11-05, the user's request through the Kameo session)
+
+Both fixes are kameo-nx's 1.0.1 (its notes' section "2 MB blocks"), found by the Torchlight port. The user asked every
+port for them, a 0.0.1 version bump and a release whose notes say "Increased performance by approximately 5%". **That
+figure is the user's wording, from Kameo (30.0 against 28.8 fps, about 4.3 %, one GPU-heavy spot). Nobody has measured
+Bangai-O.**
+
+- **Game memory.** `RexGmInit` (`sdk/src/core/guest_memory_switch.cpp`) passed 2 MB as the second argument of
+  `virtmemFindAslr`, which is a guard and not an alignment, so the window was never on a 2 MB boundary and the kernel
+  used 4 KB pages for all of the game's memory. It now asks for 2 MB more and rounds the base up. `banjo_window_blocks =
+  false` goes back. The log says `[window blocks] guest window at ..., on a 2 MB boundary`.
+- **The NRO's code.** `sdk/src/ui/switch_code_blocks.cpp`, in `rexglue_switch_startup`: a priority 101 constructor
+  copies the text and read-only data to heap that lines up with their addresses modulo 2 MB and swaps the mappings from
+  a page of its own. `banjo_code_blocks = false` in `renut.toml` goes back (the file reads that key itself, before the
+  cvars). It costs their size again, because the loader's copy can't be given back: 34 MB here (text 28.2 MB, read-only
+  data 5.7 MB; the distribution NRO carries no shaders). Its status is logged at the guest window's setup, because log
+  lines from the start of `main()` don't reach the file.
+- **Checked for this port** (the traps Kameo's session listed): `_start`, not `__start__`. No exit returns to hbloader,
+  whose own unmap would abort: the end of `main` and the app's shutdown use `__nx_applet_exit_mode = 1` and
+  `__libnx_exit`; `abort()` and `exit()` end in `diagAbortWithResult` (`switch_crash_hooks.c`). No thread runs during the
+  swap: the other priority 101 constructors are the crash hooks and the terminate handler, and nothing overrides
+  `__appInit`.
+- **`sdk/cmake/rex_version.cmake`** (kameo-nx's `be9ee495`): the SDK's version no longer reads this repository's `v*` tags.
+  A clean clone of the public repo has `v1.0.0`, and its configure would stop at "floor version (0.10) is behind tag
+  version (1.0)".
+- **PGO:** new functions at the ends of their files, so the others keep their profile. `RexGmInit` and
+  `CreateFileMappingHandle` changed, so they lose theirs; both run once at startup. `switch_code_blocks.cpp` has none.
+- **Not copied:** `banjo_tlb_test_s`, Kameo's latency test. It is a diagnostic and off by default.
+- **Distribution NRO** (`out/dist_1.0.1/bangaio-nx.nro`, sha256 `7f9ecafc...`, 36.6 MB, NACP version 1.0.1, no `BDKG`
+  package): built as 1.0.0's was (incremental PGO-use + LTO, 802 s with other ports' builds running). Shader files are
+  unchanged, so an update only replaces the NRO.
+- **Emulator `blocks1`** (the NRO with exactly the installer's two shader files, `emu_base.toml`, 200 s): the window on a
+  2 MB boundary; `no loader (an emulator), left where it is; swap self-test: passed`; 95 shaders from the installed
+  package, 137 variants. Other ports' builds had the host at 99 % CPU, so the game ran at under 2 fps and the run ended
+  before gameplay, with every verify counter at 0 on the few draws it reached. **So this NRO was not played through on the
+  emulator when it was published.** Ryujinx has no loader, so the code move itself doesn't run there.
+- **Not run on a console when published** (the user asked to publish straight away). On a console the log (`renut_log.toml`)
+  should say `[code blocks] text ... now on a copy`; `left where it is` means it skipped itself. The path that puts the old
+  copy back if the kernel refuses the new one has never run, on Kameo either.
 
 ## Next steps (2026-10-29)
 

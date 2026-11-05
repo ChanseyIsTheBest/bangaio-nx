@@ -71,6 +71,10 @@ typedef enum {
 /* Reserves the window. size is usually 0x120000000. Returns the base or NULL. */
 uint8_t* RexGmInit(size_t size);
 
+/* bangaio-nx (2026-11-05, kameo-nx's 1.0.1): false, before RexGmInit: the window anywhere, on 4 KB pages
+ * (banjo_window_blocks). */
+void RexGmSetWindowBlocks(bool on);
+
 /* * Releases everything. */
 void RexGmShutdown(void);
 

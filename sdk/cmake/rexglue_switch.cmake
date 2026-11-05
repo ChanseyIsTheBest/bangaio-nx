@@ -71,6 +71,8 @@ if(NOT TARGET rexglue_switch_startup)
         "${CMAKE_CURRENT_LIST_DIR}/../src/ui/runtime_switch.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/../src/ui/switch_elf_stubs.c"
         "${CMAKE_CURRENT_LIST_DIR}/../src/ui/switch_crash_hooks.c"
+        # bangaio-nx (2026-11-05, kameo-nx's 1.0.1): the NRO's code on 2 MB blocks.
+        "${CMAKE_CURRENT_LIST_DIR}/../src/ui/switch_code_blocks.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/../src/ui/switch_perf.cpp"
         # FPS and resolution for the console overlays (SaltyNX) and Reverse-NX reading.
         "${CMAKE_CURRENT_LIST_DIR}/../src/ui/switch_saltynx.cpp"

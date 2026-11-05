@@ -41,10 +41,16 @@
 
 #include <malloc.h>
 
+#include <rex/cvar.h>
 #include <rex/logging.h>
 #include <rex/memory/utils.h>
 
 #include "guest_memory_switch.h"
+
+// bangaio-nx (2026-11-05, kameo-nx's 1.0.1): defined at the end of this file.
+bool RexWindowBlocksOn();
+// What ui/switch_code_blocks.cpp did, before there was a log.
+extern "C" const char* RexCodeBlocksStatus(void);
 
 namespace rex::memory {
 
@@ -262,12 +268,17 @@ FileMappingHandle CreateFileMappingHandle(const std::filesystem::path& path, siz
   // Horizon has no named shared memory and no sparse memory. The "file" is the
   // window of the guest memory core, and it is reserved here, empty. Real memory
   // arrives with AllocFixed(kCommit).
+  if (!RexGmBase()) RexGmSetWindowBlocks(RexWindowBlocksOn());
   if (!RexGmBase() && !RexGmInit(AlignUp(length))) {
     REXLOG_ERROR("Could not reserve the guest window of 0x{:X} bytes. "
                  "Title takeover is required: in applet mode there is no room.",
                  length);
     return kFileMappingHandleInvalid;
   }
+  REXLOG_INFO("[window blocks] guest window at 0x{:X}, {} a 2 MB boundary (banjo_window_blocks)",
+              reinterpret_cast<uintptr_t>(RexGmBase()),
+              (reinterpret_cast<uintptr_t>(RexGmBase()) & 0x1FFFFF) ? "not on" : "on");
+  REXLOG_INFO("{}", RexCodeBlocksStatus());
   return kSwitchMapping;
 }
 
@@ -307,5 +318,15 @@ bool UnmapFileView(FileMappingHandle handle, void* base_address, size_t length) 
 }
 
 }  // namespace rex::memory
+
+// bangaio-nx (2026-11-05): at the end of the file, so that the other functions keep their PGO profile.
+REXCVAR_DEFINE_BOOL(banjo_window_blocks, true, "Banjo/Switch",
+                    "The guest window on a 2 MB boundary, so that the kernel can use 2 MB blocks for the game's memory. "
+                    "false: anywhere, on 4 KB pages, as in version 1.0.0");
+REXCVAR_DEFINE_BOOL(banjo_code_blocks, true, "Banjo/Switch",
+                    "The NRO's code and read-only data on 2 MB blocks (ui/switch_code_blocks.cpp, which reads this key "
+                    "from renut.toml itself, because it runs before the cvars). false: on 4 KB pages, as in version 1.0.0");
+
+bool RexWindowBlocksOn() { return REXCVAR_GET(banjo_window_blocks); }
 
 #endif  // REX_PLATFORM_SWITCH

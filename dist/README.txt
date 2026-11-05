@@ -1,4 +1,4 @@
-Bangai-O HD: Missile Fury for the Nintendo Switch - bangaio-nx 1.0.0 by ChanseyIsTheBest
+Bangai-O HD: Missile Fury for the Nintendo Switch - bangaio-nx 1.0.1 by ChanseyIsTheBest
 =========================================================================================
 
 A native Switch port of the Xbox 360 game (XBLA), recompiled with ReXGlue and drawn with reNut's renderer on deko3d.
