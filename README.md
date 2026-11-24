@@ -1,6 +1,6 @@
 <p align=center><img src="tools/switch/icon/bangaio_icon.jpg" alt="Bangai-O HD: Missile Fury" width="256" height="256"></p>
 
-<h1 align=center>Bangai-O HD: Missile Fury: Nintendo Switch port</h1>
+<h1 align=center>Bangai-O HD: Missile Fury — Nintendo Switch port</h1>
 
 <p align=center><b>bangaio-nx 1.0.1</b> · <a href="https://chanseyisthebest.github.io/bangaio-nx-installer/">web installer</a> · <a href="https://github.com/ChanseyIsTheBest/bangaio-nx/releases/tag/v1.0.1">release</a></p>
 
